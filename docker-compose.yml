@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  petals-bootstrap:
+    build: .
+    ports:
+      - "31337:31337"
+    volumes:
+      - ./petals-data:/app/bootstrap-data
+    command: ["--hf-token", "${HUGGING_FACE_HUB_TOKEN}", "--bootstrap"]
+    restart: unless-stopped
+
+  petals-server:
+    build: .
+    ports:
+      - "31338:31337"
+    volumes:
+      - ./petals-data:/app/bootstrap-data
+    command: ["--hf-token", "${HUGGING_FACE_HUB_TOKEN}", "--initial-peers", "/ip4/petals-bootstrap/tcp/31337/p2p/Qm...", "--device", "cuda", "--num-blocks", "5"]
+    depends_on:
+      - petals-bootstrap
+    restart: unless-stopped
