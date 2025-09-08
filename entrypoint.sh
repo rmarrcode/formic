@@ -138,3 +138,5 @@ else
         --num_blocks "$NUM_BLOCKS" \
         --device "$DEVICE"
 fi
+
+
