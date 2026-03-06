@@ -5,3 +5,5 @@ echo "Testing bitsandbytes..."
 python -c "import bitsandbytes; print('bitsandbytes: OK')"
 echo "GPU Info:"
 nvidia-smi --query-gpu=name,memory.total --format=csv
+
+
