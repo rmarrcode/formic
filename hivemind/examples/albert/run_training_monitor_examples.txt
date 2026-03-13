@@ -1,0 +1,4 @@
+./run_training_monitor.py \
+  --wandb_project formic \
+  --host_maddrs /ip4/0.0.0.0/tcp/6969 \
+  --announce_maddrs /ip4/3.144.48.98/tcp/6969

@@ -196,7 +196,6 @@ def main():
     logger.info(f"Found {len(collaboration_args.initial_peers)} initial peers: {collaboration_args.initial_peers}")
 
     setup_transformers_logging(training_args.local_rank)
-    logger.info(f"Training/evaluation parameters:\n{training_args}")
 
     # Set seed before initializing model.
     set_seed(training_args.seed)
@@ -250,6 +249,15 @@ def main():
         identity_path=collaboration_args.identity_path,
     )
     log_visible_maddrs(dht.get_visible_maddrs(), only_p2p=collaboration_args.use_ipfs)
+
+    # Advertise presence once so the monitor can announce new arrivals.
+    dht.store(
+        key=f"{collaboration_args.run_id}_presence",
+        subkey=local_public_key,
+        value={"joined": get_dht_time()},
+        expiration_time=get_dht_time() + 3600,
+        return_future=True,
+    )
 
     total_batch_size_per_step = training_args.per_device_train_batch_size * training_args.gradient_accumulation_steps
     if torch.cuda.device_count() != 0:
@@ -311,6 +319,14 @@ def main():
             """Shuffle data independently for each peer to avoid duplicating batches [important for quality]"""
             torch.manual_seed(hash(local_public_key))
             return super().get_train_dataloader()
+
+    dht.store(
+        key=optimizer.run_id + "_present",
+        subkey=local_public_key,
+        value=local_public_key,
+        expiration_time=get_dht_time() + self.statistics_expiration,
+        return_future=True,
+    )
 
     trainer = TrainerWithIndependentShuffling(
         model=model,

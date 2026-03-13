@@ -174,11 +174,21 @@ if __name__ == "__main__":
     if monitor_args.wandb_project is not None:
         wandb.init(project=monitor_args.wandb_project)
 
+    seen_peers = set()
     current_step = 0
     if monitor_args.store_checkpoints:
         checkpoint_handler = CheckpointHandler(monitor_args, optimizer_args, averager_args, dht)
 
     while True:
+        # Detect newly seen trainers from presence key
+        presence = dht.get(run_id + "_presence", latest=True)
+        if presence is not None:
+            presence_dict = presence.value
+            for peer in presence_dict:
+                if peer not in seen_peers:
+                    seen_peers.add(peer)
+                    logger.info(f"Trainer joined: {peer}")
+
         metrics_dict = dht.get(run_id + "_metrics", latest=True)
         if metrics_dict is not None:
             metrics_dict = metrics_dict.value
