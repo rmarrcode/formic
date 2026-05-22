@@ -325,6 +325,7 @@ def main():
         subkey=local_public_key,
         value=local_public_key,
         expiration_time=get_dht_time() + self.statistics_expiration,
+        expiration_time=get_dht_time() + collaboration_args.statistics_expiration,
         return_future=True,
     )
 
